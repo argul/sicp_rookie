@@ -30,4 +30,24 @@
         (/ x (+ y (inner (+ loop 1))))))
   (inner 1))
 (/ 1.0 (div_n 20 1.0 1.0))
-    
+
+(define (test_nested_function)
+  (define (sqrt x)
+    (sqrt-iter 1.0 x))
+
+  (define (sqrt-iter guess x)
+    (if (good-enough? guess x)
+        guess
+        (sqrt-iter (improve guess x) x)))
+
+  (define (good-enough? guess x)
+    (< (abs (- (* guess guess) x)) 0.001))
+
+  (define (average x y)
+    (/ (+ x y) 2.0))
+
+  (define (improve guess x)
+    (average guess (/ x guess)))
+
+  (sqrt 2))
+;(test_nested_function)
