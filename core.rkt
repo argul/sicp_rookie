@@ -32,6 +32,8 @@
         (else (filter predicator (cdr arr)))))
 (provide filter)
 
+(define (filter-with-index predicator arr)
+
 (define (contains? value arr)
   (not (null? (filter (lambda (x) (equal? x value)) arr))))
 (provide contains?)
