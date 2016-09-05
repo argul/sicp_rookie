@@ -1,6 +1,7 @@
 #lang racket
 
 (define nil '())
+(provide nil)
 
 (define (map proc arr)
   (if (null? arr)
@@ -14,16 +15,21 @@
       (proc (car arr) (reduce proc (cdr arr) nullval))))
 (provide reduce)
 
-(define (map_tree proc tree)
+(define (accumulate proc initial arr)
+  (if (null? arr) initial
+      (proc (car arr) (accumulate proc initial (cdr arr)))))
+(provide accumulate)
+
+(define (map-tree proc tree)
   (cond ((null? tree) nil)
         ((not (pair? tree)) (proc tree))
-        (else (cons (map_tree proc (car tree)) (map_tree proc (cdr tree))))))
-(provide map_tree)
+        (else (cons (map-tree proc (car tree)) (map-tree proc (cdr tree))))))
+(provide map-tree)
 
-(define (filter proc arr)
+(define (filter predicator arr)
   (cond ((null? arr) nil)
-        ((proc (car arr)) (cons (car arr) (filter proc (cdr arr))))
-        (else (filter proc (cdr arr)))))
+        ((predicator (car arr)) (cons (car arr) (filter predicator (cdr arr))))
+        (else (filter predicator (cdr arr)))))
 (provide filter)
 
 (define (contains? value arr)
@@ -46,16 +52,15 @@
     (proc arg1 arg2 args))
   ret)
 
-(define (wrap_imp post_process proc)
-  (lambda (args) (post_process (apply proc args))))
+(define (wrap-imp post-process proc)
+  (lambda (args) (post-process (apply proc args))))
 
-(define (wrap post_process proc) (arbiter (wrap_imp post_process proc)))
+(define (wrap post-process proc) (arbiter (wrap-imp post-process proc)))
 (provide wrap)
 
-(define (wrapall_imp post_process procs)
-    (lambda (args) (post_process (map (lambda (p) (apply p args)) procs))))
+(define (wrapall-imp post-process procs)
+  (lambda (args) (post-process (map (lambda (p) (apply p args)) procs))))
 
 (define wrapall
-  (arbiter2 (lambda (post_process procs) (arbiter (wrapall_imp post_process procs)))))
+  (arbiter2 (lambda (post-process procs) (arbiter (wrapall-imp post-process procs)))))
 (provide wrapall)
-  
