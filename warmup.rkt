@@ -122,5 +122,7 @@
   (newline)
   (display (find-first (lambda (x) (> x 3)) (list 1 2 3 4 5)))
   (newline)
-  (display (find-index 3 (list 1 2 3 4 5))))
+  (display (find-index 3 (list 1 2 3 4 5)))
+  (newline)
+  (display (sub-array 2 5 (list 1 2 3 4 5 6 7 8 9 10))))
 (test-arr)

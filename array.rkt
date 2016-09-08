@@ -1,4 +1,5 @@
 #lang racket
+
 (require "core.rkt")
 
 (define (make-arr . args)
@@ -10,8 +11,9 @@
 (provide arr-length)
 
 (define (concat arr1 arr2)
-  (if (null? arr1) arr2
-      (cons (car arr1) (concat (cdr arr1) arr2))))
+  (accumulate (lambda (cur result) (cons cur result))
+              arr2
+              arr1))
 (provide concat)
 
 (define (reverse arr)
@@ -32,9 +34,26 @@
 (provide find-first)
 
 (define (find-index idx arr)
-  (define (iter idx arr)
+  (define (find-index-imp idx arr)
     (if (= 0 idx) (car arr)
-        (iter (- idx 1) (cdr arr))))
-  (if (or (< idx 0) (> idx (- (arr-length arr) 1))) (error "input index is invalid!")
-      (iter idx arr)))
+        (find-index-imp (- idx 1) (cdr arr))))
+  (if (or (< idx 0) (> idx (- (arr-length arr) 1))) (error "invalid input!")
+      (find-index-imp idx arr)))
 (provide find-index)
+
+;end-idx < 0 means till the end
+(define (sub-array start end arr)
+  (define len (arr-length arr))
+  (let ((max-idx (- len 1))
+        (min-idx 0)
+        (start-idx start)
+        (end-idx (if (< end 0) (- len 1)
+                     end)))
+    (cond ((or (< start-idx min-idx) (> start-idx max-idx)) (error "invalid input!"))
+          ((or (< end-idx min-idx) (> end-idx max-idx)) (error "invalid input!"))
+          ((> start-idx end-idx) (error "invalid input!"))
+          (else (filter-with-idx
+                 (lambda (idx item) (>= idx start-idx))
+                 (filter-with-idx
+                  (lambda (idx item) (<= idx end-idx)) arr))))))
+(provide sub-array)

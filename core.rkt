@@ -20,6 +20,14 @@
       (proc (car arr) (accumulate proc initial (cdr arr)))))
 (provide accumulate)
 
+(define (accumulate-reverse proc initial arr)
+  (define (accumulate-reverse-imp proc result arr)
+    (if (null? arr) result
+        (accumulate-reverse-imp proc (proc (car arr) result) (cdr arr))))
+  (accumulate-reverse-imp proc initial arr))
+(provide accumulate-reverse)
+      
+
 (define (map-tree proc tree)
   (cond ((null? tree) nil)
         ((not (pair? tree)) (proc tree))
@@ -27,12 +35,18 @@
 (provide map-tree)
 
 (define (filter predicator arr)
-  (cond ((null? arr) nil)
+  (cond ((null? arr) '())
         ((predicator (car arr)) (cons (car arr) (filter predicator (cdr arr))))
         (else (filter predicator (cdr arr)))))
 (provide filter)
 
-(define (filter-with-index predicator arr)
+(define (filter-with-idx predicator arr)
+  (define (filter-with-idx-imp predicator arr idx)
+    (cond ((null? arr) '())
+          ((predicator idx (car arr)) (cons (car arr) (filter-with-idx-imp predicator (cdr arr) (+ idx 1))))
+          (else (filter-with-idx-imp predicator (cdr arr) (+ idx 1)))))
+  (filter-with-idx-imp predicator arr 0))
+(provide filter-with-idx)
 
 (define (contains? value arr)
   (not (null? (filter (lambda (x) (equal? x value)) arr))))
@@ -40,19 +54,13 @@
 
 ;TODO : use macros
 (define (arbiter proc)
-  (define (ret . args)
-    (proc args))
-  ret)
+  (lambda args (proc args)))
 
 (define (arbiter2 proc)
-  (define (ret arg1 . args)
-    (proc arg1 args))
-  ret)
+  (lambda (arg1 . args) (proc arg1 args)))
 
 (define (arbiter3 proc)
-  (define (ret arg1 arg2 . args)
-    (proc arg1 arg2 args))
-  ret)
+  (lambda (arg1 arg2 . args) (proc arg1 arg2 args)))
 
 (define (wrap-imp post-process proc)
   (lambda (args) (post-process (apply proc args))))
